@@ -1,0 +1,6 @@
+{
+  "name": "Trình Tạo & Quản Lý Mã QR",
+  "description": "Ứng dụng tạo mã QR, in ấn nhãn dán và quản lý danh sách nội dung xuất nhập qua file (JSON, CSV, TXT, ZIP).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

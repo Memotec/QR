@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Content Manager - Nhập nội dung, Tạo QR, Quản lý, In & Xuất dữ liệu</title>
+  
+  <!-- SEO & Description -->
+  <meta name="description" content="Hệ thống quản trị và tạo mã QR thông minh, lưu trữ LocalStorage, in tem nhãn chuẩn khổ A4 và xuất nhập dữ liệu JSON." />
+  <link rel="icon" type="image/x-icon" href="./assets/favicon.ico" />
+
+  <!-- Google Fonts: Plus Jakarta Sans / Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+
+  <!-- QRCode.js Library (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- Application Stylesheet -->
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+
+  <!-- Top App Header -->
+  <header class="app-header no-print">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="brand-icon">QR</div>
+        <div class="brand-info">
+          <h1>QR CONTENT MANAGER</h1>
+          <p class="brand-subtitle">Nhập nội dung - Tạo QR - Quản lý - In - Xuất dữ liệu</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-export-json" class="btn btn-secondary btn-sm" title="Xuất toàn bộ cơ sở dữ liệu ra file JSON">
+          📤 EXPORT JSON
+        </button>
+        <button id="btn-import-json" class="btn btn-secondary btn-sm" title="Nhập dữ liệu từ file JSON máy tính">
+          📥 IMPORT JSON
+        </button>
+        <input type="file" id="file-input-json" accept=".json" class="hidden" />
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-main no-print">
+
+    <!-- Overview Statistics Ribbon -->
+    <section class="stats-grid">
+      <div class="stat-card blue">
+        <div>
+          <div class="stat-label">Tổng số QR</div>
+          <div class="stat-value" id="stat-total">0</div>
+        </div>
+        <div class="stat-icon">📊</div>
+      </div>
+
+      <div class="stat-card green">
+        <div>
+          <div class="stat-label">Số QR hôm nay</div>
+          <div class="stat-value" id="stat-today">0</div>
+        </div>
+        <div class="stat-icon">✨</div>
+      </div>
+
+      <div class="stat-card purple">
+        <div>
+          <div class="stat-label">Bản ghi đang hiển thị</div>
+          <div class="stat-value" id="stat-filtered">0</div>
+        </div>
+        <div class="stat-icon">🎯</div>
+      </div>
+    </section>
+
+    <!-- Workspace: Form (Left) & Realtime QR Preview (Right) -->
+    <section class="workspace-grid">
+
+      <!-- Left Column: Input Form -->
+      <div class="card" id="form-card">
+        <div class="card-header">
+          <h2>
+            <span>📝</span> Nhập & Biên Tập Nội Dung
+          </h2>
+          <span id="form-mode-badge" class="card-badge">Thêm Mới</span>
+        </div>
+
+        <div class="card-body">
+          <form id="qr-form" onsubmit="return false;" class="form-grid">
+            
+            <!-- Row: ID & Title -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="input-id">
+                  Mã / ID <span class="required">*</span>
+                </label>
+                <div class="input-with-action">
+                  <input type="text" id="input-id" placeholder="QR-0001" autocomplete="off" />
+                  <button type="button" id="btn-auto-id" class="btn btn-subtle btn-sm" title="Tự động sinh mã tiếp theo">
+                    ⚡ Auto
+                  </button>
+                </div>
+                <span class="input-hint">ID là duy nhất trong hệ thống</span>
+              </div>
+
+              <div class="form-group">
+                <label for="input-title">Tiêu đề bản ghi</label>
+                <input type="text" id="input-title" placeholder="VD: Thiết bị VHF Park Air, Wifi, Bàn 01..." autocomplete="off" />
+                <span class="input-hint">Tên gợi nhớ để in và tìm kiếm</span>
+              </div>
+            </div>
+
+            <!-- Content textarea -->
+            <div class="form-group">
+              <label for="input-content">
+                Nội dung tạo QR <span class="required">*</span>
+              </label>
+              <textarea id="input-content" rows="4" placeholder="Nhập liên kết Website, văn bản, thông số kỹ thuật, cấu hình mạng... Mã QR sẽ cập nhật ngay lập tức!"></textarea>
+              <span class="input-hint">Hỗ trợ đa dòng, định dạng UTF-8 đầy đủ</span>
+            </div>
+
+            <!-- Note input -->
+            <div class="form-group">
+              <label for="input-note">Ghi chú bổ sung</label>
+              <input type="text" id="input-note" placeholder="VD: Vị trí phòng máy, phân loại, bảo dưỡng định kỳ..." />
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <div class="form-actions-left">
+                <button type="button" id="btn-new" class="btn btn-secondary" title="Tạo mới một bản ghi rỗng">
+                  ➕ Bản ghi mới
+                </button>
+              </div>
+
+              <div class="form-actions-right">
+                <button type="button" id="btn-save" class="btn btn-primary" title="Lưu bản ghi vào hệ thống">
+                  💾 Lưu
+                </button>
+                <button type="button" id="btn-update" class="btn btn-success hidden" title="Cập nhật thay đổi cho bản ghi hiện tại">
+                  🔄 Cập nhật
+                </button>
+                <button type="button" id="btn-delete-current" class="btn btn-danger hidden" title="Xóa bản ghi này khỏi hệ thống">
+                  🗑 Xóa
+                </button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Right Column: Real-time QR Preview & Quick Export -->
+      <div class="card" id="preview-card">
+        <div class="card-header">
+          <h2>
+            <span>📱</span> Xem Trước Mã QR
+          </h2>
+          <span class="card-badge" style="background: var(--slate-100); color: var(--slate-600); border:none;">
+            Real-time H-Level
+          </span>
+        </div>
+
+        <div class="card-body">
+          <div class="qr-preview-container">
+            
+            <div class="qr-box-wrapper">
+              <div id="qrcode-container"></div>
+              <div id="qr-placeholder" class="qr-placeholder hidden">
+                <div style="font-size: 2rem; margin-bottom: 6px;">🔳</div>
+                <div>Nhập nội dung ở khung bên trái để hiển thị mã QR tại đây</div>
+              </div>
+            </div>
+
+            <!-- Meta details display -->
+            <div class="qr-meta-box">
+              <div class="qr-meta-id" id="preview-id">QR-0001</div>
+              <div class="qr-meta-title" id="preview-title">Thiết bị VHF Park Air</div>
+              <div class="qr-meta-content" id="preview-content">VHF TX Park Air T6...</div>
+            </div>
+
+            <!-- Preview Action Buttons -->
+            <div class="qr-actions-row">
+              <button type="button" id="btn-download-png" class="btn btn-secondary" title="Tải mã QR này dạng hình ảnh PNG">
+                ⬇ Tải PNG
+              </button>
+              <button type="button" id="btn-print-single" class="btn btn-primary" title="Mở hộp thoại in khổ A4 chuẩn cho mã này">
+                🖨 In QR
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Bottom: Data Management Table & Search Toolbar -->
+    <section class="card" id="data-management-card">
+      <div class="card-header">
+        <h2>
+          <span>📋</span> Quản Lý Dữ Liệu & Danh Sách Bản Ghi
+        </h2>
+        <button type="button" id="btn-print-all" class="btn btn-primary btn-sm" title="In tất cả các bản ghi đang lọc trên khổ A4">
+          🖨 IN TẤT CẢ
+        </button>
+      </div>
+
+      <!-- Search & Info Bar -->
+      <div class="table-toolbar">
+        <div class="search-box">
+          <span class="search-icon">🔎</span>
+          <input type="text" id="search-input" placeholder="Tìm kiếm theo ID, tiêu đề, nội dung, ghi chú..." />
+        </div>
+        <div class="table-stats-info" id="table-count-info">
+          Hiển thị 0 / 0 bản ghi
+        </div>
+      </div>
+
+      <!-- Table Content -->
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 110px;">ID</th>
+              <th style="width: 220px;">Tiêu đề</th>
+              <th>Nội dung</th>
+              <th style="width: 140px;">Ngày cập nhật</th>
+              <th style="width: 220px; text-align: right;">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <!-- Rendered by JavaScript -->
+          </tbody>
+        </table>
+
+        <!-- Empty State Message -->
+        <div id="empty-state" class="empty-state hidden">
+          <div class="empty-state-icon">📭</div>
+          <h3>Không tìm thấy bản ghi nào</h3>
+          <p>Hãy thử từ khóa tìm kiếm khác hoặc bấm "Bản ghi mới" để tạo mã QR.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Print Target Container (Active only during @media print) -->
+  <div id="print-target-area"></div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Application Logic -->
+  <script src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "QR-0001",
+    "title": "Thiết bị VHF Park Air",
+    "content": "VHF TX Park Air T6\nFrequency: 134.050 MHz\nLocation: Phu Quoc",
+    "note": "Thiết bị tại Phú Quốc",
+    "createdAt": "2026-08-21T06:00:00.000Z",
+    "updatedAt": "2026-08-21T06:00:00.000Z"
+  },
+  {
+    "id": "QR-0002",
+    "title": "Nokia 7250 IXR",
+    "content": "Device: Nokia 7250 IXR\nRole: Network Router",
+    "note": "Thiết bị mạng trung tâm",
+    "createdAt": "2026-08-21T06:10:00.000Z",
+    "updatedAt": "2026-08-21T06:10:00.000Z"
+  },
+  {
+    "id": "QR-0003",
+    "title": "VCS SITTI M800IP",
+    "content": "System: SITTI MULTIFONO M800IP\nProtocol: ED-137\nSystem: VCCS",
+    "note": "Hệ thống thoại điều hành không lưu",
+    "createdAt": "2026-08-21T06:20:00.000Z",
+    "updatedAt": "2026-08-21T06:20:00.000Z"
+  }
+]
